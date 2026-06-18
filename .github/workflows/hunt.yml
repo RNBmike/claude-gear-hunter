@@ -1,13 +1,13 @@
 name: Gear Hunter
 
 on:
-  schedule:
+  # schedule:
     # 4x/day at irregular UTC times — avoids machine-perfect bot patterns
     # Roughly 6:17am, 11:43am, 4:08pm, 8:51pm PT
-    - cron: '17 14 * * *'
-    - cron: '43 19 * * *'
-    - cron: '08 00 * * *'
-    - cron: '51 04 * * *'
+  #   - cron: '17 14 * * *'
+  #   - cron: '43 19 * * *'
+  #   - cron: '08 00 * * *'
+  #   - cron: '51 04 * * *'
   workflow_dispatch:    # manual trigger from GitHub Actions UI
 
 jobs:
