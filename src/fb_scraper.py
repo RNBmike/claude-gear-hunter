@@ -216,6 +216,11 @@ def fetch_facebook(
             _random_delay(1.0, 2.0)
 
             html = page.content()
+            log.info(f"[FB] Page title: {page.title()}")
+            log.info(f"[FB] Current URL: {page.url}")
+            log.info(f"[FB] HTML starts: {html[:500]}")
+            log.info(f"[FB] HTML contains marketplace/item/: {'/marketplace/item/' in html}")
+            log.info(f"[FB] HTML contains login: {'login' in html.lower()}")
 
             # Strategy 1: JSON blob extraction (preferred)
             for blob in _extract_json_blobs(html):
