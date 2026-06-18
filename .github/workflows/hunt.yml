@@ -44,7 +44,9 @@ jobs:
         run: |
           python -c "
           import time, random
-          delay = random.randint(0, 1800)
+          # restore like this later
+          # delay = random.randint(0, 1800)  
+          delay = random.randint(0, 20)
           print(f'Jitter delay: {delay}s ({delay//60}m {delay%60}s)')
           time.sleep(delay)
           "
