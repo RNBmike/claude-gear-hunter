@@ -1,0 +1,67 @@
+name: Gear Hunter
+
+on:
+  schedule:
+    # 4x/day at irregular UTC times — avoids machine-perfect bot patterns
+    # Roughly 6:17am, 11:43am, 4:08pm, 8:51pm PT
+    - cron: '17 14 * * *'
+    - cron: '43 19 * * *'
+    - cron: '08 00 * * *'
+    - cron: '51 04 * * *'
+  workflow_dispatch:    # manual trigger from GitHub Actions UI
+
+jobs:
+  hunt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Persist seen_ids.json across runs — prevents re-alerting on old listings
+      - name: Restore seen IDs cache
+        uses: actions/cache@v4
+        with:
+          path: src/seen_ids.json
+          key: seen-ids-${{ github.run_id }}
+          restore-keys: seen-ids-
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      # Extra random delay (0–30 min) on top of irregular cron times
+      # Together these ensure FB never sees a predictable access pattern
+      - name: Random startup jitter
+        run: |
+          python -c "
+          import time, random
+          delay = random.randint(0, 1800)
+          print(f'Jitter delay: {delay}s ({delay//60}m {delay%60}s)')
+          time.sleep(delay)
+          "
+
+      - name: Run Gear Hunter
+        working-directory: src
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_FROM:        ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO:          ${{ secrets.EMAIL_TO }}
+          EBAY_APP_ID:       ${{ secrets.EBAY_APP_ID }}
+        run: python hunter.py
+
+      - name: Save seen IDs cache
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: src/seen_ids.json
+          key: seen-ids-${{ github.run_id }}
