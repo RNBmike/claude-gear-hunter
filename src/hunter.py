@@ -343,6 +343,7 @@ def fetch_craigslist(watch: dict) -> list:
 
     try:
         resp = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+        log.info(f"[CL] Response status: {resp.status_code}, starts: {resp.text[:200]}")
         ns   = {
             "rss": "http://purl.org/rss/1.0/",
             "cl":  "http://www.craigslist.org/about/namespace/1.0",
