@@ -283,7 +283,10 @@ def fetch_ebay(watch: dict) -> list:
     raw_items = []
     for search in searches:
         try:
-            data  = requests.get(base_url + search["params"], timeout=15).json()
+            # was this: data  = requests.get(base_url + search["params"], timeout=15).json()
+            resp = requests.get(base_url + search["params"], timeout=15)
+            log.info(f"[eBay] {search['label']} status: {resp.status_code}, starts: {resp.text[:300]}")
+            data = resp.json()
             items = (data.get("findItemsByKeywordsResponse", [{}])[0]
                          .get("searchResult", [{}])[0]
                          .get("item", []))
